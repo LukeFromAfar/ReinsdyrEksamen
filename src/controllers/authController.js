@@ -1,43 +1,31 @@
 const Eier = require('../models/EierSchema');
 bcrypt = require('bcrypt');
 const { get } = require('mongoose');
+const jwt = require('jsonwebtoken');
 
 const saltRounds = parseInt(process.env.SALT_ROUNDS);
 
 const authController = {
     login: async (req, res) => {
-        const { navn, passord } = req.body;
-        res.render('\/login', { title: 'Login' });
-        // try {
-        //     const user = await Eier.findOne({ navn, passord });
-        //     if (user) {
-        //         req.session.user = user;
-        //         res.redirect('/auth/register');
-        //     } else {
-        //         res.render('pages/login', { title: 'Login' });
-        //     }
-        // } catch (err) {
-        //     console.log(err);
-        // }
+
+        res.render('login', { title: 'Login' });
+    },
+    renderLogin: (req, res) => {
+        res.render('login', { title: 'Login' });
     },
     register: async (req, res) => {
-        const { navn, passord } = req.body;
-        res.render('/register', { title: 'Register' });
-        // try {
-        //     const user = await Eier.findOne({ navn });
-        //     if (user) {
-        //         res.render('pages/register', { title: 'Register' });
-        //     } else {
-        //         const salt = await bcrypt.genSalt(saltRounds);
-        //         const hashedPassord = await bcrypt.hash(passord, salt);
-        //         const newUser = new Eier({ navn, passord: hashedPassord });
-        //         await newUser.save();
-        //         req.session.user = newUser;
-        //         res.redirect('/auth/login');
-        //     }
-        // } catch (err) {
-        //     console.log(err);
-        // }
+      try {
+        console.log("logging in");
+        res.render('register',{ title: 'Register' });
+      } catch (err) {
+        console.log(err);
+      }
+
+      
+        
+    },
+    renderRegister: (req, res) => {
+        res.render('register', { title: 'Register' });
     },
     logout: async (req, res) => {
         try {
@@ -49,6 +37,7 @@ const authController = {
         }
       },
 
+      
 };
 
 module.exports = authController;

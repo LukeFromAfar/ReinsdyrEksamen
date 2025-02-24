@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include("./partials/header.ejs") %>
+<body>
+    <h1>Register</h1>
+    <form action="/auth/register" method="post">
+        <label for="navn">Navn:</label>
+        <input type="text" name="navn" id="navn">
+        <label for="passord">Passord:</label>
+        <input type="password" name="passord" id="passord">
+        <label for="passord">Gjenta passord:</label>
+        <input type="password" name="passord" id="passord2">
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>
