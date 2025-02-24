@@ -22,5 +22,17 @@ app.get('/', (req, res) => {
     res.render('index', {title: 'Home'});
 });
 
+app.get('/FAQ', (req, res) => {
+    res.render('faq', {title: 'FAQ'});
+});
+
+app.get('/map', (req, res) => {
+    res.render('map', {title: 'Kart'});
+});
+
+app.get('/database', (req, res) => {
+    res.render('database', {title: 'Database'});
+});
+
 
 app.listen(process.env.PORT);
