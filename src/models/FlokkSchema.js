@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const { Schema, model } = mongoose;
 
-const FlokkSchema = new Schema({
+const elokkSchema = new Schema({
     navn: String,
     eier: [
         {
@@ -15,6 +15,6 @@ const FlokkSchema = new Schema({
 
 });
 
-const Flokk = model('Flokk', FlokkSchema);
+const Flokk = model('Flokk', flokkSchema);
 
 module.exports = Flokk;

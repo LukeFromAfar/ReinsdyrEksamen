@@ -1,18 +1,18 @@
 const mongoose = require('mongoose');
 const { Schema, model } = mongoose;
 
-const EierSchema = new Schema({
+const eierSchema = new Schema({
   navn: String,
   epost: String,
   passord: String,
-  kontaktspråk: [
+  kontaktsprak: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Språk'
+      ref: 'Sprak'
     }
   ],
 });
 
-const Eier = model('Eier', EierSchema);
+const Eier = model('Eier', eierSchema);
 
 module.exports = Eier;
