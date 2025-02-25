@@ -41,9 +41,12 @@ const authController = {
             sameSite: 'strict',
             maxAge: 60 * 60 * 1000, // 1 hour
         });
+        
+        console.log('User from request:', req.user);
 
         // Send success response
-        res.status(200).json({ msg: "Innlogging vellykket" });
+        // res.status(200).json({ msg: "Innlogging vellykket" });
+        res.render('profilePage', { title: 'Profile' })
 
     } catch (error) {
         console.error('Innloggingsfeil:', error);
@@ -76,7 +79,6 @@ const authController = {
         }
     
         // Hash password
-        const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(passord, saltRounds);
     
         // Create new user
@@ -101,13 +103,12 @@ const authController = {
         // Set cookie
         res.cookie('jwt', token, {
           httpOnly: true,
-          secure: process.env.NODE_ENV === 'production', // Use secure in production
+          secure: process.env.NODE_ENV, // Use secure in production
           sameSite: 'strict',
           maxAge: 60 * 60 * 1000, // 1 hour
         });
-    
-        // Send success response
-        res.status(201).json({ msg: "Bruker registrert vellykket", userId: newUser._id });
+   
+        res.render('profilePage', { title: 'Profile' })
     
       } catch (err) {
         console.error('Registreringsfeil:', err);
@@ -120,7 +121,7 @@ const authController = {
     logout: async (req, res) => {
         try {
           res.clearCookie('jwt');
-          res.status(200).send({ msg: "Logged out successfully" });
+          res.redirect('/');
         } catch (error) {
           console.error(error);
           res.status(500).send({ msg: "Error logging out" });

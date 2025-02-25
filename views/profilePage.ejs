@@ -2,8 +2,41 @@
 <html lang="en">
 <%- include("./partials/header.ejs") %>
 <%- include("./partials/navbar.ejs") %>
-<body>
-    <h1>Profil</h1>
-    
-</body>
+    <body>
+        <h1>Profile</h1>
+        <a href="/profile/register-flokk">Registrer flokk og beiteområde</a>
+        <a href="/profile/register-rein">Registrer reinsdyr</a>
+        <a href="/auth/logout">Logg ut</a>
+        
+        <div>
+            <h2>Flokker</h2>
+            <div class="flokker-container">
+                <% if (locals.flokker && flokker.length > 0) { %>
+                    <% flokker.forEach(flokk => { %>
+                        <div class="flokk-card">
+                            <h3><%= flokk.navn %></h3>
+                            <p>Buemerke: <%= flokk.buemerkeNavn %></p>
+                            <% if (flokk.buemerkeBilde) { %>
+                                <img src="/<%= flokk.buemerkeBilde.replace('public/', '') %>" alt="Buemerke" width="100">
+                            <% } %>
+                            <h4>Beiteområder:</h4>
+                            <ul>
+                                <% flokk.beiteomraader.forEach(beite => { %>
+                                    <li>
+                                        <%= beite.beiteomraade %> 
+                                        - <%= beite.fylker.join(', ') %>
+                                    </li>
+                                <% }) %>
+                            </ul>
+                            <a href="/register-rein/<%= flokk._id %>" class="btn btn-secondary">Tilføy reindyr</a>
+                        </div>
+                    <% }) %>
+                <% } else { %>
+                    <p>Du har ingen registrerte flokker ennå.</p>
+                <% } %>
+            </div>
+        </div>
+        
+        
+    </body>
 </html>

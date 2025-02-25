@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include("./partials/header.ejs") %>
+<%- include("./partials/navbar.ejs") %>
+<body>
+    <div class="container">
+        <h1>Registrer flokk og beiteområde</h1>
+        
+        <form action="/profile/register-flokk" method="POST" enctype="multipart/form-data">
+            <h2>Flokk Informasjon</h2>
+            <div class="form-group">
+                <label for="flokkNavn">Navn på flokk:</label>
+                <input type="text" id="flokkNavn" name="flokkNavn" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="buemerkeNavn">Navn Buemerke:</label>
+                <input type="text" id="buemerkeNavn" name="buemerkeNavn" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="buemerkeBilde">Buemerke Bilde:</label>
+                <input type="file" id="buemerkeBilde" name="buemerkeBilde" class="form-control-file">
+            </div>
+
+            <h3>Beiteområde</h3>
+            <div class="form-group">
+                <label for="beiteomraadeNavn">Beiteområde Navn:</label>
+                <select type="text" id="beiteomraadeNavn" name="beiteomraadeNavn" class="form-control" required>
+                    <option value="Akkala">Akkala</option>
+                    <option value="Enare Skolt">Enare Skolt</option>
+                    <option value="Kildin">Kildin</option>
+                    <option value="Nord">Nord</option>
+                    <option value="Pite">Pite</option>
+                    <option value="Sør">Sør</option>
+                    <option value="Ter">Ter</option>
+                    <option value="Ume">Ume</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="fylker">Fylker:</label>
+                <input multiple id="fylker" name="fylker" class="form-control" required />
+            </div>
+
+            <button type="submit" class="btn btn-primary">Registrer</button>
+        </form>
+    </div>
+</body>
+</html>
