@@ -9,12 +9,10 @@ const reinsdyrSchema = new Schema({
   },
   navn: String,
   fodselsdato: Date,
-  flokk: [
-    {
+  flokk: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Flokk'
     }
-  ],
 });
 
 const Reinsdyr = model('Reinsdyr', reinsdyrSchema);

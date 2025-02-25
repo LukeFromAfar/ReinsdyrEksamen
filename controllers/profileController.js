@@ -23,6 +23,11 @@ const profileController = {
             const flokker = await Flokk.find({ eier: req.user.id })
                 .populate('beiteomraader');
                 
+            // Fetch reinsdyr for each flock
+            for (let flokk of flokker) {
+                flokk.reinsdyr = await Rein.find({ flokk: flokk._id });
+            }
+                
             console.log('Found flocks for user:', flokker.length);
             
             res.render('profilePage', { 
@@ -73,9 +78,11 @@ const profileController = {
     },
     renderRegisterRein: async (req, res) => {
         try {
-            res.render('registerRein', { title: 'Registrer reinsdyr' });
+            const flokkId = req.params.flokkId;
+            res.render('registerRein', { title: 'Registrer reinsdyr', flokkId: flokkId });
         } catch (error) {
             console.error('Feil ved rendering av reinsdyrregistreringsside:', error);
+            res.status(500).render('error', { message: 'Serverfeil ved lasting av reinsdyrregistreringsside' });
         }
     },
     registerFlokk: async (req, res) => {
@@ -117,7 +124,7 @@ const profileController = {
             console.log('Saving flokk with owner:', req.user.id);
             await flokk.save();
     
-            res.json({ msg: 'Flokk og beiteområde registrert', flokk, beiteomraade });
+            // res.json({ msg: 'Flokk og beiteområde registrert', flokk, beiteomraade });
         } catch (error) {
             console.error('Feil ved registrering av flokk:', error);
             res.status(500).json({ msg: "Serverfeil ved registrering av flokk", error: error.message });
@@ -125,8 +132,10 @@ const profileController = {
     },
     registerRein: async (req, res) => {
         try {
+            const flokkId = req.params.flokkId;
+            
             // Check if the flokk exists
-            const flokk = await Flokk.findById(req.body.flokk);
+            const flokk = await Flokk.findById(flokkId);
             if (!flokk) {
                 return res.status(404).json({ msg: 'Flokk ikke funnet' });
             }
@@ -134,14 +143,57 @@ const profileController = {
             const reinsdyr = new Rein({
                 navn: req.body.navn,
                 fodselsdato: req.body.fodselsdato,
-                flokk: flokk._id,
+                flokk: flokkId,
             });
             await reinsdyr.save();
     
-            res.json({ msg: 'Reinsdyr registrert', reinsdyr });
+            // res.json({ msg: 'Reinsdyr registrert', reinsdyr });
         } catch (error) {
             console.error('Feil ved registrering av reinsdyr:', error);
-            res.status(500).json({ msg: "Serverfeil ved registrering av reinsdyr", error: error.message });
+            // res.status(500).json({ msg: "Serverfeil ved registrering av reinsdyr", error: error.message });
+        }
+    },
+    deleteRein: async (req, res) => {
+        try {
+          const reinId = req.params.id;
+          const deletedRein = await Rein.findByIdAndDelete(reinId);
+          
+          if (!deletedRein) {
+            return res.status(404).json({ message: 'Reinsdyr ikke funnet' });
+          }
+          
+          res.status(200).json({ message: 'Reinsdyr slettet', deletedRein });
+        } catch (error) {
+          console.error('Feil ved sletting av reinsdyr:', error);
+          res.status(500).json({ message: 'Kunne ikke slette reinsdyret. Prøv igjen senere.' });
+        }
+      },
+    
+      deleteFlokk: async (req, res) => {
+        try {
+          const flokkId = req.params.id;
+          const flokk = await Flokk.findById(flokkId);
+    
+          if (!flokk) {
+            return res.status(404).json({ message: 'Flokk ikke funnet' });
+          }
+    
+          // Delete associated reinsdyr
+          await Rein.deleteMany({ flokk: flokkId });
+    
+          // Delete the image file if it exists
+          if (flokk.buemerkeBilde) {
+            const imagePath = path.join(__dirname, '..', flokk.buemerkeBilde);
+            await fs.unlink(imagePath);
+          }
+    
+          // Delete the flokk
+          await Flokk.findByIdAndDelete(flokkId);
+    
+          res.status(200).json({ message: 'Flokk og tilhørende reinsdyr slettet' });
+        } catch (error) {
+          console.error('Feil ved sletting av flokk:', error);
+          res.status(500).json({ message: 'Kunne ikke slette flokken. Prøv igjen senere.' });
         }
     }
 };

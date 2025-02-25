@@ -13,9 +13,25 @@
     padding: 15px;
     width: 300px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: relative; /* This ensures the x button is positioned within the card */
+    }
+
+.delete-flokk, .delete-rein {
+    background: none;
+    border: none;
+    color: red;
+    cursor: pointer;
+    font-size: 0.8em;
+    padding: 0;
 }
 
-.flokk-card h3 {
-    margin-top: 0;
-    color: #333;
+.delete-flokk {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: none;
+    border: none;
+    font-size: 1.2em;
+    cursor: pointer;
 }
+

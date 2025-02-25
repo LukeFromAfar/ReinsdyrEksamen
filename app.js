@@ -47,17 +47,37 @@ app.get('/database', (req, res) => {
     res.render('database', {title: 'Database'});
 });
 
+app.get('/api/search', async (req, res) => {
+    const searchTerm = req.query.term.toLowerCase();
+    
+    try {
+        const flokker = await Flokk.find({
+            $or: [
+                { navn: { $regex: searchTerm, $options: 'i' } },
+                { buemerkeNavn: { $regex: searchTerm, $options: 'i' } },
+                { serieinndeling: { $regex: searchTerm, $options: 'i' } }
+            ]
+        });
 
-// app.get('/profile', authenticateUser, (req, res) => {
-//     res.render('profilePage', { title: 'Profile', user: req.user });
-// });
+        const reinsdyr = await Reinsdyr.find({
+            $or: [
+                { navn: { $regex: searchTerm, $options: 'i' } },
+                { serienummer: { $regex: searchTerm, $options: 'i' } }
+            ]
+        }).populate('flokkId');
 
-// app.get('/profile/register-flokk', authenticateUser, (req, res) => {
-//     res.render('registerFlokk', { title: 'Registrer flokk', user: req.user });
-// });
+        const results = [
+            ...flokker.map(f => ({ type: 'flokk', name: f.navn, buemerkeNavn: f.buemerkeNavn })),
+            ...reinsdyr.map(r => ({ type: 'reinsdyr', name: r.navn, serienummer: r.serienummer, flokkNavn: r.flokkId.navn }))
+        ];
 
-// app.get('/profile/register-rein', authenticateUser, (req, res) => {
-//     res.render('registerRein', { title: 'Registrer reinsdyr', user: req.user });
-// });
+        res.json(results);
+    } catch (error) {
+        console.error('Search error:', error);
+        res.status(500).json({ error: 'An error occurred while searching' });
+    }
+});
+
+
 
 app.listen(process.env.PORT);

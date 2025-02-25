@@ -4,6 +4,41 @@
 <%- include("./partials/navbar.ejs") %>
 <body>
     <h1>Hello</h1>
-    <input type="text">
+    <form id="searchForm" onsubmit="event.preventDefault(); performSearch();">
+        <input type="text" id="searchInput" placeholder="Search for flocks, reindeer or beiteområder...">
+        <button type="submit">Search</button>
+    </form>
+    <div id="searchResults"></div>
+
+    <script>
+      const performSearch = () => {
+        const query = document.getElementById('searchInput').value;
+        fetch(`/search?q=${encodeURIComponent(query)}`)
+          .then(res => res.json())
+          .then(data => {
+            let html = '';
+            if (data.reinsdyr.length > 0) {
+              html += '<h2>Reinsdyr</h2>';
+              data.reinsdyr.forEach(item => {
+                html += `<p>${item.navn} (Serienummer: ${item.serienummer})</p>`;
+              });
+            }
+            if (data.flokk.length > 0) {
+              html += '<h2>Flokk</h2>';
+              data.flokk.forEach(item => {
+                html += `<p>${item.navn}</p>`;
+              });
+            }
+            if (data.beiteomraader && data.beiteomraader.length > 0) {
+              html += '<h2>Beiteområder</h2>';
+              data.beiteomraader.forEach(item => {
+                html += `<p>${item.navn}</p>`;
+              });
+            }
+            document.getElementById('searchResults').innerHTML = html;
+          })
+          .catch(err => console.error(err));
+      }
+    </script>
 </body>
 </html>
