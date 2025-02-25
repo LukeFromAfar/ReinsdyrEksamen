@@ -6,6 +6,11 @@ const path = require('path');
 const fileUpload = require('express-fileupload');
 const authenticateUser = require('./middleware/authenticateUser');
 
+const Flokk = require('./models/FlokkSchema');
+const Eier = require('./models/EierSchema');
+const Reinsdyr = require('./models/ReinsdyrSchema');
+const Beiteomraade = require('./models/BeiteomradeSchema');
+
 const app = express();
 app.set('view engine', 'ejs');
 app.set("views", path.join(__dirname, "views"));
@@ -31,8 +36,80 @@ app.use('/profile', profileRoutes);
 
 
 
-app.get('/', (req, res) => {
-    res.render('index', {title: 'Home'});
+app.get(['/', '/index'], async (req, res) => {
+    try {
+        const search = req.query.search || '';
+        const regex = new RegExp(search, 'i');
+        const numberSearch = isNaN(search) ? null : Number(search);
+
+        // Search for Flokk
+        const flokker = await Flokk.find({
+            $or: [
+                { navn: regex },
+                { buemerkeNavn: regex },
+                { serieinndeling: regex }
+            ]
+        }).populate('eier');
+
+        // Get IDs of matching flokker
+        const flokkIds = flokker.map(f => f._id);
+
+        // Search for Reinsdyr, including those in matching flokker
+        const reinsdyr = await Reinsdyr.find({
+            $or: [
+                { navn: regex },
+                { serienummer: regex },
+                { flokk: { $in: flokkIds } }
+            ]
+        }).populate('flokk');
+
+        // Get IDs of matching reinsdyr's flokker
+        const reinsdyrFlokkIds = reinsdyr.map(r => r.flokk._id);
+
+        // Combine flokk IDs
+        const allFlokkIds = [...new Set([...flokkIds, ...reinsdyrFlokkIds])];
+
+        // Search for Eier, including those related to matching flokker
+        const eiere = await Eier.find({
+            $or: [
+                { navn: regex },
+                { epost: regex },
+                { kontaktsprak: regex },
+                { telefonnummer: numberSearch },
+                { _id: { $in: flokker.map(f => f.eier).flat() } }
+            ]
+        });
+
+        // Get all flokker related to found eiere
+        const eierFlokker = await Flokk.find({ eier: { $in: eiere.map(e => e._id) } });
+
+        // Combine all unique flokk IDs
+        const finalFlokkIds = [...new Set([...allFlokkIds, ...eierFlokker.map(f => f._id)])];
+
+        // Final queries to get all related data
+        const finalFlokker = await Flokk.find({ _id: { $in: finalFlokkIds } }).populate('eier');
+        const finalReinsdyr = await Reinsdyr.find({ flokk: { $in: finalFlokkIds } }).populate('flokk');
+        const finalEiere = await Eier.find({ _id: { $in: finalFlokker.map(f => f.eier).flat() } });
+
+        const beiteomraader = await Beiteomraade.find({
+            $or: [
+                { beiteomraade: regex },
+                { fylker: regex }
+            ]
+        });
+
+        const groupedResults = {
+            Flokk: finalFlokker.map(f => ({ ...f.toObject() })),
+            Reinsdyr: finalReinsdyr.map(r => ({ ...r.toObject() })),
+            Eier: finalEiere.map(e => ({ ...e.toObject() })),
+            Beiteområde: beiteomraader.map(b => ({ ...b.toObject() }))
+        };
+
+        res.render('index', { title: "Hjem", groupedResults, search });
+    } catch (err) {
+        console.error('Error in route handler:', err);
+        res.status(500).send('Server error');
+    }
 });
 
 app.get('/FAQ', (req, res) => {

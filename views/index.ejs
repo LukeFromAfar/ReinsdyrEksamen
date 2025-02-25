@@ -1,44 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
-<%- include("./partials/header.ejs") %>
-<%- include("./partials/navbar.ejs") %>
+    <%- include('partials/header') %>
 <body>
-    <h1>Hello</h1>
-    <form id="searchForm" onsubmit="event.preventDefault(); performSearch();">
-        <input type="text" id="searchInput" placeholder="Search for flocks, reindeer or beiteområder...">
-        <button type="submit">Search</button>
-    </form>
-    <div id="searchResults"></div>
+    <%- include('partials/navbar') %> 
+    
+    <div class="container">
+        <h1>Søkeresultater</h1>
+        
+        <form action="/" method="GET" class="search-form">
+            <input type="text" name="search" id="searchBar" placeholder="Søk i alle felt" value="<%= typeof search !== 'undefined' ? search : '' %>">
+            <button type="submit" id="searchButton">Søk</button>
+        </form>
 
-    <script>
-      const performSearch = () => {
-        const query = document.getElementById('searchInput').value;
-        fetch(`/search?q=${encodeURIComponent(query)}`)
-          .then(res => res.json())
-          .then(data => {
-            let html = '';
-            if (data.reinsdyr.length > 0) {
-              html += '<h2>Reinsdyr</h2>';
-              data.reinsdyr.forEach(item => {
-                html += `<p>${item.navn} (Serienummer: ${item.serienummer})</p>`;
-              });
-            }
-            if (data.flokk.length > 0) {
-              html += '<h2>Flokk</h2>';
-              data.flokk.forEach(item => {
-                html += `<p>${item.navn}</p>`;
-              });
-            }
-            if (data.beiteomraader && data.beiteomraader.length > 0) {
-              html += '<h2>Beiteområder</h2>';
-              data.beiteomraader.forEach(item => {
-                html += `<p>${item.navn}</p>`;
-              });
-            }
-            document.getElementById('searchResults').innerHTML = html;
-          })
-          .catch(err => console.error(err));
-      }
-    </script>
+        <div id="search-results">
+            <% if (Object.values(groupedResults).some(group => group.length > 0)) { %>
+                <% for (const [category, results] of Object.entries(groupedResults)) { %>
+                    <% if (results.length > 0) { %>
+                        <div class="result-category">
+                            <h2><%= category %></h2>
+                            <% results.forEach(function(result) { %>
+                                <div class="result-box">
+                                    <% if (category === 'Flokk') { %>
+                                        <h3><%= result.navn %></h3>
+                                        <p><strong>Buemerke:</strong> <%= result.buemerkeNavn %></p>
+                                        <% if (result.buemerkeBilde) { %>
+                                            <img src="/<%= result.buemerkeBilde.replace('public/', '') %>" alt="Buemerke for <%= result.flokkNavn %>" class="buemerke-image">
+                                        <% } %>
+                                        <p><strong>Serieinndeling:</strong> <%= result.serieinndeling %></p>
+                                    <% } else if (category === 'Reinsdyr') { %>
+                                        <p><strong>Serienummer:</strong> <%= result.serienummer %></p>
+                                        <p><strong>Født:</strong> <%= result.fodselsdato ? new Date(result.fodselsdato).toLocaleDateString('no-NO') : 'N/A' %></p>
+                                        <p><strong>Flokk:</strong> <%= result.flokk ? result.flokk.navn : 'N/A' %></p>
+                                    <% } else if (category === 'Eier') { %>
+                                        <p><strong>E-post:</strong> <%= result.epost %></p>
+                                        <p><strong>Kontaktspråk:</strong> <%= result.kontaktsprak %></p>
+                                        <p><strong>Telefon:</strong> <%= result.telefonnummer %></p>
+                                    <% } else if (category === 'Beiteområde') { %>
+                                        <p><strong>Fylker:</strong> <%= result.fylker.join(', ') %></p>
+                                    <% } %>
+                                </div>
+                            <% }); %>
+                        </div>
+                    <% } %>
+                <% } %>
+            <% } else { %>
+                <div class="form-container">
+                    <p>Ingen resultater funnet.</p>
+                </div>
+            <% } %>
+        </div>
+    </div>
+    
 </body>
 </html>

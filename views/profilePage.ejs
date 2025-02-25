@@ -1,59 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
 <%- include("./partials/header.ejs") %>
-<%- include("./partials/navbar.ejs") %>
     <body>
+        <%- include("./partials/navbar.ejs") %>
         <h1>Profile</h1>
-        <a href="/profile/register-flokk">Registrer flokk og beiteområde</a>
-        <!-- <a href="/profile/register-rein">Registrer reinsdyr</a> -->
-        <a href="/auth/logout">Logg ut</a>
+        <div class="button-center">
+            <a href="/profile/register-flokk" class="btn">Registrer flokk og beiteområde</a>
+            <a href="/auth/logout" class="btn">Logg ut</a>  
+        </div>
         
-        <div>
-            <h2>Flokker</h2>
-            <div class="flokker-container">
-                <% if (locals.flokker && flokker.length > 0) { %>
-                    <% flokker.forEach(flokk => { %>
-                        <div class="flokk-card">
-                            <button onclick="deleteFlokk('<%= flokk._id %>')" class="delete-flokk" style="position: absolute; top: 5px; right: 5px;">❌</button>
-                            <h3><%= flokk.navn %></h3>
-                            <p>Serieinndeling: <%= flokk.serieinndeling %></p>
-                            <p>Buemerke: <%= flokk.buemerkeNavn %></p>
-                            <% if (flokk.buemerkeBilde) { %>
-                                <img src="/<%= flokk.buemerkeBilde.replace('public/', '') %>" alt="Buemerke" width="100">
-                            <% } %>
-                            <h4>Beiteområder:</h4>
-                            <ul>
-                                <% flokk.beiteomraader.forEach(beite => { %>
+        
+        <div class="flokker-container">
+            <% if (locals.flokker && flokker.length > 0) { %>
+                <% flokker.forEach(flokk => { %>
+                    <div class="flokk-card">
+                        <button onclick="deleteFlokk('<%= flokk._id %>')" class="delete-flokk" style="position: absolute; top: 5px; right: 5px;">❌</button>
+                        <h3><%= flokk.navn %></h3>
+                        <p><strong>Serieinndeling:</strong> <%= flokk.serieinndeling %></p>
+                        <p><strong>Buemerke:</strong><%= flokk.buemerkeNavn %></p>
+                        <% if (flokk.buemerkeBilde) { %>
+                            <img src="/<%= flokk.buemerkeBilde.replace('public/', '') %>" alt="Buemerke" width="100">
+                        <% } %>
+                        <h4>Beiteområder:</h4>
+                        <ul>
+                            <% flokk.beiteomraader.forEach(beite => { %>
+                                <li>
+                                    <%= beite.beiteomraade %> 
+                                    - <%= beite.fylker.join(', ') %>
+                                </li>
+                            <% }) %>
+                        </ul>
+                        <h4>Reinsdyr:</h4>
+                        <ul>
+                            <% if (flokk.reinsdyr && flokk.reinsdyr.length > 0) { %>
+                                <% flokk.reinsdyr.forEach(rein => { %>
                                     <li>
-                                        <%= beite.beiteomraade %> 
-                                        - <%= beite.fylker.join(', ') %>
+                                        <%= rein.navn %> 
+                                        (Født: <%= new Date(rein.fodselsdato).toLocaleDateString() %>)
+                                        - Serienummer: <%= rein.serienummer %>
+                                        <form onsubmit="return deleteRein(event, '<%= rein._id %>')" action="/profile/delete-rein/<%= rein._id %>" method="POST" class="delete-rein-form">
+                                            <button type="submit" class="delete-rein">❌</button>
+                                        </form>
                                     </li>
                                 <% }) %>
-                            </ul>
-                            <h4>Reinsdyr:</h4>
-                            <ul>
-                                <% if (flokk.reinsdyr && flokk.reinsdyr.length > 0) { %>
-                                    <% flokk.reinsdyr.forEach(rein => { %>
-                                        <li>
-                                            <%= rein.navn %> 
-                                            (Født: <%= new Date(rein.fodselsdato).toLocaleDateString() %>)
-                                            - Serienummer: <%= rein.serienummer %>
-                                            <form onsubmit="return deleteRein(event, '<%= rein._id %>')" action="/profile/delete-rein/<%= rein._id %>" method="POST" style="display: inline;">
-                                                <button type="submit" class="delete-rein">❌</button>
-                                            </form>
-                                        </li>
-                                    <% }) %>
-                                <% } else { %>
-                                    <li>Ingen reinsdyr registrert i denne flokken.</li>
-                                <% } %>
-                            </ul>
-                            <a href="/profile/register-rein/<%= flokk._id %>" class="btn btn-secondary">Tilføy reindyr</a>
-                        </div>
-                    <% }) %>
-                <% } else { %>
-                    <p>Du har ingen registrerte flokker ennå.</p>
-                <% } %>
-            </div>
+                            <% } else { %>
+                                <li>Ingen reinsdyr registrert i denne flokken.</li>
+                            <% } %>
+                        </ul>
+                        <a href="/profile/register-rein/<%= flokk._id %>" class="btn btn-secondary">Tilføy reindyr</a>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <p>Du har ingen registrerte flokker ennå.</p>
+            <% } %>
         </div>
     </body>
     <script>

@@ -123,7 +123,8 @@ const profileController = {
             
             console.log('Saving flokk with owner:', req.user.id);
             await flokk.save();
-    
+            
+            res.redirect(`/profile`);
             // res.json({ msg: 'Flokk og beiteområde registrert', flokk, beiteomraade });
         } catch (error) {
             console.error('Feil ved registrering av flokk:', error);
@@ -146,6 +147,8 @@ const profileController = {
                 flokk: flokkId,
             });
             await reinsdyr.save();
+
+            res.redirect(`/profile`);
     
             // res.json({ msg: 'Reinsdyr registrert', reinsdyr });
         } catch (error) {
