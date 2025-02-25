@@ -1,8 +1,12 @@
 const mongoose = require('mongoose');
 const { Schema, model } = mongoose;
+const { v4: uuidv4 } = require('uuid');
 
 const reinsdyrSchema = new Schema({
-  serienummer: Number,
+  serienummer: {
+    type: String,
+    default: () => uuidv4()
+  },
   navn: String,
   fodselsdato: Date,
   flokk: [
@@ -10,7 +14,7 @@ const reinsdyrSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Flokk'
     }
-  ]
+  ],
 });
 
 const Reinsdyr = model('Reinsdyr', reinsdyrSchema);

@@ -6,11 +6,17 @@
     <h1>Register</h1>
     <form action="/auth/register" method="post">
         <label for="navn">Navn:</label>
-        <input type="text" name="navn" id="navn">
+        <input type="text" name="navn" id="navn" required>
+        <label for="email">Email:</label>
+        <input type="email" name="email" id="email" required>
         <label for="passord">Passord:</label>
-        <input type="password" name="passord" id="passord">
+        <input type="password" name="passord" id="passord" required>
         <label for="passord">Gjenta passord:</label>
-        <input type="password" name="passord" id="passord2">
+        <input type="password" name="repeatPassord" id="repeatPassord" required>
+        <label for="kontaktsprak">Kontaktsprak:</label>
+        <input type="text" name="kontaktsprak" id="kontaktsprak" required>
+        <label for="telefonnummer">Telefonnummer:</label>
+        <input type="tel" name="telefonnummer" id="telefonnummer" required>
         <input type="submit" value="Submit">
     </form>
 </body>

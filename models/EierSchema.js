@@ -5,12 +5,8 @@ const eierSchema = new Schema({
   navn: String,
   epost: String,
   passord: String,
-  kontaktsprak: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Sprak'
-    }
-  ],
+  kontaktsprak: String,
+  telefonnummer: Number
 });
 
 const Eier = model('Eier', eierSchema);

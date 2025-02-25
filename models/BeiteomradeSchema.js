@@ -1,16 +1,11 @@
 const mongoose = require('mongoose');
 const { Schema, model } = mongoose;
 
-const beiteomradeSchema = new Schema({
-  sprak: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Sprak'
-    }
-  ],
+const beiteomraadeSchema = new Schema({
+  beiteomraade: String,
   fylker: [String]
 });
 
-const Beiteomrade = model('Beiteomrade', beiteomradeSchema);
+const Beiteomraade = model('Beiteomraade', beiteomraadeSchema);
 
-module.exports = Beiteomrade;
+module.exports = Beiteomraade;
