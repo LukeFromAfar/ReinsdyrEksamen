@@ -30,24 +30,12 @@
                                 </li>
                             <% }) %>
                         </ul>
-                        <h4>Reinsdyr:</h4>
-                        <ul>
-                            <% if (flokk.reinsdyr && flokk.reinsdyr.length > 0) { %>
-                                <% flokk.reinsdyr.forEach(rein => { %>
-                                    <li>
-                                        <%= rein.navn %> 
-                                        (Født: <%= new Date(rein.fodselsdato).toLocaleDateString() %>)
-                                        - Serienummer: <%= rein.serienummer %>
-                                        <form onsubmit="return deleteRein(event, '<%= rein._id %>')" action="/profile/delete-rein/<%= rein._id %>" method="POST" class="delete-rein-form">
-                                            <button type="submit" class="delete-rein">❌</button>
-                                        </form>
-                                    </li>
-                                <% }) %>
-                            <% } else { %>
-                                <li>Ingen reinsdyr registrert i denne flokken.</li>
-                            <% } %>
-                        </ul>
-                        <a href="/profile/register-rein/<%= flokk._id %>" class="btn btn-secondary">Tilføy reindyr</a>
+                        
+                        <!-- Remove the reinsdyr list and add the navigation button -->
+                        <div class="flokk-buttons">
+                            <a href="/profile/flokk-reindeer/<%= flokk._id %>" class="btn">Vis reinsdyr</a>
+                            <a href="/profile/register-rein/<%= flokk._id %>" class="btn btn-secondary">Tilføy reindyr</a>
+                        </div>
                     </div>
                 <% }) %>
             <% } else { %>
@@ -72,26 +60,6 @@
                         alert('En feil oppstod. Vennligst prøv igjen senere.');
                     });
             }
-        }
-
-        function deleteRein(event, reinId) {
-            event.preventDefault();
-            if (confirm('Er du sikker på at du vil slette dette reinsdyret?')) {
-                fetch(event.target.action, { method: 'POST' })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.message === 'Reinsdyr slettet') {
-                            location.reload();
-                        } else {
-                            alert(data.message);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('En feil oppstod. Vennligst prøv igjen senere.');
-                    });
-            }
-            return false;
         }
     </script>
 </html>

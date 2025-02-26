@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include("./partials/header.ejs") %>
+<body>
+    <%- include("./partials/navbar.ejs") %>
+    <h1>Reinsdyr i <%= flokk.navn %></h1>
+    
+    <div class="button-center">
+        <a href="/profile" class="btn">Tilbake til profil</a>
+        <a href="/profile/register-rein/<%= flokk._id %>" class="btn">Tilføy reindyr</a>
+        <a href="/profile/move-reindeer/<%= flokk._id %>" class="btn">Flytt reinsdyr</a>
+    </div>
+    
+    <div class="reinsdyr-container">
+        <% if (reinsdyr && reinsdyr.length > 0) { %>
+            <table class="reinsdyr-table">
+                <thead>
+                    <tr>
+                        <th>Navn</th>
+                        <th>Fødselsdato</th>
+                        <th>Serienummer</th>
+                        <th>Handlinger</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% reinsdyr.forEach(rein => { %>
+                        <tr>
+                            <td><%= rein.navn %></td>
+                            <td><%= new Date(rein.fodselsdato).toLocaleDateString() %></td>
+                            <td><%= rein.serienummer %></td>
+                            <td>
+                                <form onsubmit="return deleteRein(event, '<%= rein._id %>')" action="/profile/delete-rein/<%= rein._id %>" method="POST">
+                                    <button type="submit" class="delete-rein">❌</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+            
+            <!-- Pagination controls -->
+            <div class="pagination">
+                <p>Viser <%= (currentPage - 1) * 10 + 1 %>-<%= Math.min(currentPage * 10, totalRein) %> av <%= totalRein %> reinsdyr</p>
+                
+                <div class="pagination-buttons">
+                    <% if (currentPage > 1) { %>
+                        <a href="/profile/flokk-reindeer/<%= flokk._id %>?page=<%= currentPage - 1 %>" class="btn">Forrige</a>
+                    <% } %>
+                    
+                    <% for(let i = 1; i <= totalPages; i++) { %>
+                        <a href="/profile/flokk-reindeer/<%= flokk._id %>?page=<%= i %>" 
+                           class="btn <%= currentPage === i ? 'btn-active' : '' %>"><%= i %></a>
+                    <% } %>
+                    
+                    <% if (currentPage < totalPages) { %>
+                        <a href="/profile/flokk-reindeer/<%= flokk._id %>?page=<%= currentPage + 1 %>" class="btn">Neste</a>
+                    <% } %>
+                </div>
+            </div>
+            
+        <% } else { %>
+            <p>Ingen reinsdyr registrert i denne flokken.</p>
+        <% } %>
+    </div>
+    
+    <script>
+        function deleteRein(event, reinId) {
+            event.preventDefault();
+            if (confirm('Er du sikker på at du vil slette dette reinsdyret?')) {
+                fetch(event.target.action, { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.message === 'Reinsdyr slettet') {
+                            // Reload the current page instead of navigating to profile
+                            location.reload();
+                        } else {
+                            alert(data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('En feil oppstod. Vennligst prøv igjen senere.');
+                    });
+            }
+            return false;
+        }
+    </script>
+</body>
+</html>

@@ -4,7 +4,13 @@
 <body>
     <%- include("./partials/navbar.ejs") %>
     <h1>Database</h1>
-    <p class="forklaring-p">Databasen er satt sammen av 4 tabeller, og kjører på MongoDB. Den har "Reinsdyr", "Flokk", "Eier" og "Beiteområde" som tabeller. Både "Eier" og "Beiteområde" har ingen "FK (Foreign Key)", mens de to andre har, for å sikre at ikke noe informasjon blir lagret dobbelt. Jeg brukte uuid for serienummer og serieinndeling, og det er ikke bruker-tilgjengelig for endring.</p>
+    
+    <div class="forklaring-p">
+        <p>Databasen er satt sammen av 4 tabeller, og kjører på MongoDB. Den har "Reinsdyr", "Flokk", "Eier" og "Beiteområde" som tabeller. Både "Eier" og "Beiteområde" har ingen "FK (Foreign Key)", mens de to andre har, for å sikre at ikke noe informasjon blir lagret dobbelt. Jeg brukte uuid for serienummer og serieinndeling, og det er ikke bruker-tilgjengelig for endring.</p>
+        <a href="https://github.com/users/LukeFromAfar/projects/4/views/1" class="btn">Se prosjektframgangen her</a>
+        <a href="https://github.com/LukeFromAfar/ReinsdyrEksamen" class="btn">Se prosjektfilene her</a>    
+    </div>
+    
     <img src="img/ERdiagram.png" alt="Database">
 </body>
 </html>

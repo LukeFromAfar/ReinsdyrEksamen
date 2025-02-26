@@ -18,5 +18,10 @@ router.post('/register-rein/:flokkId', profileController.registerRein);
 router.post('/delete-rein/:id', profileController.deleteRein);
 router.post('/delete-flokk/:id', profileController.deleteFlokk);
 
+router.get('/move-reindeer/:flokkId', profileController.renderMoveReindeer);
+router.post('/move-reindeer', profileController.moveReindeer);
+
+router.get('/flokk-reindeer/:flokkId', profileController.renderFlokkReindeer);
+
 
 module.exports = router;

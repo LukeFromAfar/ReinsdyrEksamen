@@ -46,13 +46,12 @@ const authController = {
 
         // Send success response
         // res.status(200).json({ msg: "Innlogging vellykket" });
-        res.render('profilePage', { title: 'Profile' })
+        res.redirect('/profile');
 
-    } catch (error) {
-        console.error('Innloggingsfeil:', error);
-        res.status(500).json({ msg: "Serverfeil under innlogging" });
-    }
-
+      } catch (error) {
+          console.error('Innloggingsfeil:', error);
+          res.status(500).json({ msg: "Serverfeil under innlogging" });
+      }
     },
     renderLogin: (req, res) => {
         res.render('login', { title: 'Login' });
@@ -108,7 +107,7 @@ const authController = {
           maxAge: 60 * 60 * 1000, // 1 hour
         });
    
-        res.render('profilePage', { title: 'Profile' })
+        res.redirect('/profile');
     
       } catch (err) {
         console.error('Registreringsfeil:', err);

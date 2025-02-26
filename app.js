@@ -36,13 +36,46 @@ app.use('/profile', profileRoutes);
 
 
 
-app.get(['/', '/index'], async (req, res) => {
+app.get(['/'], async (req, res) => {
     try {
         const search = req.query.search || '';
+        
+        // If search is empty, just show empty results
+        if (!search.trim()) {
+            return res.render('index', { 
+                title: "Hjem", 
+                groupedResults: {
+                    Flokk: [],
+                    Reinsdyr: [],
+                    Eier: [],
+                    Beiteområde: []
+                }, 
+                search 
+            });
+        }
+        
         const regex = new RegExp(search, 'i');
-        const numberSearch = isNaN(search) ? null : Number(search);
+        const numberSearch = !isNaN(search) ? Number(search) : null;
 
-        // Search for Flokk
+        // Try to parse date from search
+        let dateSearch = null;
+        
+        // Common date formats: DD.MM.YYYY, YYYY-MM-DD, etc.
+        const dateParts = search.match(/^(\d{1,2})[.-/](\d{1,2})[.-/](\d{2,4})$/);
+        if (dateParts) {
+            // Norwegian format DD.MM.YYYY is commonly used
+            const day = parseInt(dateParts[1]);
+            const month = parseInt(dateParts[2]) - 1; // JS months are 0-indexed
+            const year = parseInt(dateParts[3]);
+            const fullYear = year < 100 ? (year < 50 ? 2000 + year : 1900 + year) : year;
+            
+            const date = new Date(fullYear, month, day);
+            if (!isNaN(date.getTime())) {
+                dateSearch = date;
+            }
+        }
+
+        // Search for each entity type directly
         const flokker = await Flokk.find({
             $or: [
                 { navn: regex },
@@ -51,45 +84,48 @@ app.get(['/', '/index'], async (req, res) => {
             ]
         }).populate('eier');
 
-        // Get IDs of matching flokker
-        const flokkIds = flokker.map(f => f._id);
-
-        // Search for Reinsdyr, including those in matching flokker
-        const reinsdyr = await Reinsdyr.find({
+        // Build reinsdyr query
+        let reinsdyrQuery = {
             $or: [
                 { navn: regex },
-                { serienummer: regex },
-                { flokk: { $in: flokkIds } }
+                { serienummer: regex }
             ]
-        }).populate('flokk');
+        };
+        
+        // Add date search if valid date found
+        if (dateSearch) {
+            // Create date range for the whole day (start to end)
+            const startDate = new Date(dateSearch);
+            startDate.setHours(0, 0, 0, 0);
+            
+            const endDate = new Date(dateSearch);
+            endDate.setHours(23, 59, 59, 999);
+            
+            reinsdyrQuery.$or.push({ 
+                fodselsdato: { 
+                    $gte: startDate, 
+                    $lte: endDate 
+                } 
+            });
+        }
+        
+        const reinsdyr = await Reinsdyr.find(reinsdyrQuery).populate('flokk');
 
-        // Get IDs of matching reinsdyr's flokker
-        const reinsdyrFlokkIds = reinsdyr.map(r => r.flokk._id);
-
-        // Combine flokk IDs
-        const allFlokkIds = [...new Set([...flokkIds, ...reinsdyrFlokkIds])];
-
-        // Search for Eier, including those related to matching flokker
-        const eiere = await Eier.find({
+        // Handle the telefonnummer field correctly for number type
+        let eierQuery = {
             $or: [
                 { navn: regex },
                 { epost: regex },
-                { kontaktsprak: regex },
-                { telefonnummer: numberSearch },
-                { _id: { $in: flokker.map(f => f.eier).flat() } }
+                { kontaktsprak: regex }
             ]
-        });
-
-        // Get all flokker related to found eiere
-        const eierFlokker = await Flokk.find({ eier: { $in: eiere.map(e => e._id) } });
-
-        // Combine all unique flokk IDs
-        const finalFlokkIds = [...new Set([...allFlokkIds, ...eierFlokker.map(f => f._id)])];
-
-        // Final queries to get all related data
-        const finalFlokker = await Flokk.find({ _id: { $in: finalFlokkIds } }).populate('eier');
-        const finalReinsdyr = await Reinsdyr.find({ flokk: { $in: finalFlokkIds } }).populate('flokk');
-        const finalEiere = await Eier.find({ _id: { $in: finalFlokker.map(f => f.eier).flat() } });
+        };
+        
+        // Only add telefonnummer to query if search is a valid number
+        if (numberSearch !== null) {
+            eierQuery.$or.push({ telefonnummer: numberSearch });
+        }
+        
+        const eiere = await Eier.find(eierQuery);
 
         const beiteomraader = await Beiteomraade.find({
             $or: [
@@ -99,9 +135,9 @@ app.get(['/', '/index'], async (req, res) => {
         });
 
         const groupedResults = {
-            Flokk: finalFlokker.map(f => ({ ...f.toObject() })),
-            Reinsdyr: finalReinsdyr.map(r => ({ ...r.toObject() })),
-            Eier: finalEiere.map(e => ({ ...e.toObject() })),
+            Flokk: flokker.map(f => ({ ...f.toObject() })),
+            Reinsdyr: reinsdyr.map(r => ({ ...r.toObject() })),
+            Eier: eiere.map(e => ({ ...e.toObject() })),
             Beiteområde: beiteomraader.map(b => ({ ...b.toObject() }))
         };
 
