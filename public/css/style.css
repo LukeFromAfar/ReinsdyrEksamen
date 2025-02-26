@@ -341,6 +341,13 @@ details[open] .accordion-button::after {
     color: #34495e;
 }
 
+.result-box img {
+    max-width: 100px;
+    max-height: 100px;
+    object-fit: contain;
+    margin: 10px 0;
+}
+
 /* Active page indicator */
 .navbar-item.active {
     background-color: #34495e;
@@ -448,7 +455,7 @@ a:hover {
     }
 
     .navbar-menu, .navbar-end {
-        flex-direction: column;
+        flex-direction: row;
         width: 100%;
         margin-top: 15px;
     }

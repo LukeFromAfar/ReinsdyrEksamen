@@ -132,30 +132,30 @@ const profileController = {
         }
     },
     // Update in profileController.js
-registerRein: async (req, res) => {
-    try {
-        const flokkId = req.params.flokkId;
-        
-        // Check if the flokk exists
-        const flokk = await Flokk.findById(flokkId);
-        if (!flokk) {
-            return res.status(404).json({ msg: 'Flokk ikke funnet' });
+    registerRein: async (req, res) => {
+        try {
+            const flokkId = req.params.flokkId;
+            
+            // Check if the flokk exists
+            const flokk = await Flokk.findById(flokkId);
+            if (!flokk) {
+                return res.status(404).json({ msg: 'Flokk ikke funnet' });
+            }
+
+            const reinsdyr = new Rein({
+                navn: req.body.navn,
+                fodselsdato: req.body.fodselsdato,
+                flokk: flokkId,
+            });
+            await reinsdyr.save();
+
+            // Redirect to the reindeer display page instead of profile
+            res.redirect(`/profile/flokk-reindeer/${flokkId}`);
+        } catch (error) {
+            console.error('Feil ved registrering av reinsdyr:', error);
+            res.status(500).json({ msg: "Serverfeil ved registrering av reinsdyr", error: error.message });
         }
-
-        const reinsdyr = new Rein({
-            navn: req.body.navn,
-            fodselsdato: req.body.fodselsdato,
-            flokk: flokkId,
-        });
-        await reinsdyr.save();
-
-        // Redirect to the reindeer display page instead of profile
-        res.redirect(`/profile/flokk-reindeer/${flokkId}`);
-    } catch (error) {
-        console.error('Feil ved registrering av reinsdyr:', error);
-        res.status(500).json({ msg: "Serverfeil ved registrering av reinsdyr", error: error.message });
-    }
-},
+    },
     deleteRein: async (req, res) => {
         try {
             const reinId = req.params.id;
