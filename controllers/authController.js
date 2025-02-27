@@ -38,7 +38,6 @@ const authController = {
         res.cookie('jwt', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV, // Use secure in production
-            sameSite: 'strict',
             maxAge: 60 * 60 * 1000, // 1 hour
         });
         
@@ -103,7 +102,6 @@ const authController = {
         res.cookie('jwt', token, {
           httpOnly: true,
           secure: process.env.NODE_ENV, // Use secure in production
-          sameSite: 'strict',
           maxAge: 60 * 60 * 1000, // 1 hour
         });
    
